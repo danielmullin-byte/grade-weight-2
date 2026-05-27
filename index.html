@@ -1,78 +1,29 @@
+<!DOCTYPE html>
 <html>
-  const row = document.createElement('div');
+<head>
+  <title>Grade Visualizer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
 
-  row.className = 'row gradeRow';
+<body>
 
-  row.innerHTML = `
+<canvas id="pieChart"></canvas>
 
-    <input class="category"
-      placeholder="Homework"
-      value="${name}">
+<script>
+let chart;
 
-    <input class="grade"
-      type="number"
-      min="0"
-      max="100"
-      value="${grade}">
+const ctx = document.getElementById('pieChart');
 
-    <input class="weight"
-      type="number"
-      min="0"
-      max="100"
-      value="${weight}">
+chart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: ['Homework', 'Tests', 'Quizzes'],
+    datasets: [{
+      data: [20, 50, 30]
+    }]
+  }
+});
+</script>
 
-    <button class="deleteBtn"
-      onclick="deleteRow(this)">
-      X
-    </button>
-
-  `;
-
-  document.getElementById('rows')
-    .appendChild(row);
-
-  row.querySelectorAll('input')
-    .forEach(input => {
-      input.addEventListener('input', updateChart);
-    });
-
-  updateChart();
-}
-
-function deleteRow(button) {
-
-  button.parentElement.remove();
-
-  updateChart();
-}
-
-function updateChart() {
-
-  const rows =
-    document.querySelectorAll('.gradeRow');
-
-  let chartLabels = [];
-  let chartData = [];
-  let chartColors = [];
-
-  let weightedPoints = 0;
-  let totalWeight = 0;
-
-  rows.forEach((row, index) => {
-
-    const category =
-      row.querySelector('.category').value
-      || `Category ${index + 1}`;
-
-    const grade =
-      Number(row.querySelector('.grade').value);
-
-    const weight =
-      Number(row.querySelector('.weight').value);
-
-    if (weight > 0) {
-
-      const earned =
-        weight * (grade / 100);
-
+</body>
 </html>
