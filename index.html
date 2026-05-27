@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>Grade Weight Visualizer</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
     body {
       font-family: Arial;
       background: #f2f4f8;
+      margin: 0;
       padding: 20px;
     }
 
@@ -35,12 +36,13 @@
     input {
       padding: 8px;
       font-size: 16px;
+      width: 100%;
     }
 
     button {
       padding: 10px;
-      cursor: pointer;
       margin-top: 10px;
+      cursor: pointer;
     }
 
     #chartBox {
@@ -69,7 +71,7 @@
   <h1>Grade Weight Visualizer</h1>
 
   <div class="note">
-    Each slice = category weight. Colored = earned. Gray = missing (not completed).
+    Each slice = category weight. Colored = earned. Gray = missing.
   </div>
 
   <div class="row">
@@ -148,11 +150,12 @@ function calculate() {
       const earned = weight * (grade / 100);
       const missing = weight - earned;
 
-      // FIXED STRUCTURE: never redistribute
+      // earned part
       labels.push(name + " Earned");
       data.push(earned);
       bg.push(colors[i % colors.length]);
 
+      // missing part (EMPTY PIE EFFECT)
       labels.push(name + " Missing");
       data.push(missing);
       bg.push("#e0e0e0");
@@ -173,22 +176,19 @@ function calculate() {
 
   if (chart) chart.destroy();
 
-  const ctx = document.getElementById("chart");
-
-  chart = new Chart(ctx, {
+  chart = new Chart(document.getElementById("chart"), {
     type: "doughnut",
     data: {
       labels: labels,
       datasets: [{
         data: data,
         backgroundColor: bg,
-        borderWidth: 2,
-        borderColor: "#fff"
+        borderColor: "#fff",
+        borderWidth: 2
       }]
     },
     options: {
       cutout: "60%",
-      responsive: true,
       plugins: {
         legend: {
           position: "bottom"
