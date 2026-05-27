@@ -53,6 +53,12 @@
       font-size: 26px;
       margin-top: 20px;
     }
+
+    .note {
+      text-align: center;
+      color: #555;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
@@ -61,6 +67,10 @@
 <div class="container">
 
   <h1>Grade Weight Visualizer</h1>
+
+  <div class="note">
+    Each slice is fixed (weight). Colored part = earned. Gray = missing.
+  </div>
 
   <div class="row">
     <strong>Category</strong>
@@ -87,16 +97,8 @@ let chart;
 let id = 0;
 
 const colors = [
-  "#4caf50",
-  "#2196f3",
-  "#ff9800",
-  "#9c27b0",
-  "#f44336",
-  "#009688",
-  "#3f51b5",
-  "#795548",
-  "#e91e63",
-  "#607d8b"
+  "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336",
+  "#009688", "#3f51b5", "#795548", "#e91e63", "#607d8b"
 ];
 
 function addRow(name="", grade="", weight="") {
@@ -108,9 +110,9 @@ function addRow(name="", grade="", weight="") {
   row.id = "r" + id;
 
   row.innerHTML = `
-    <input placeholder="Homework" class="name" value="${name}">
-    <input type="number" placeholder="90" class="grade" value="${grade}">
-    <input type="number" placeholder="20" class="weight" value="${weight}">
+    <input class="name" placeholder="Homework" value="${name}">
+    <input class="grade" type="number" placeholder="90" value="${grade}">
+    <input class="weight" type="number" placeholder="20" value="${weight}">
     <button onclick="removeRow('r${id}')">X</button>
   `;
 
@@ -135,7 +137,7 @@ function update() {
   let data = [];
   let bg = [];
 
-  let totalWeighted = 0;
+  let weightedSum = 0;
   let totalWeight = 0;
 
   let i = 0;
@@ -151,19 +153,18 @@ function update() {
       const earned = weight * (grade / 100);
       const missing = weight - earned;
 
-      // earned part
+      // FIXED PIE STRUCTURE:
+      // slice is ALWAYS full weight, never redistributed
+
       labels.push(name + " (Earned)");
       data.push(earned);
       bg.push(colors[i % colors.length]);
 
-      // missing part (the “hole” effect)
-      if (missing > 0) {
-        labels.push(name + " (Missing)");
-        data.push(missing);
-        bg.push("#e0e0e0");
-      }
+      labels.push(name + " (Missing)");
+      data.push(missing);
+      bg.push("#e0e0e0");
 
-      totalWeighted += earned;
+      weightedSum += earned;
       totalWeight += weight;
 
       i++;
@@ -171,7 +172,7 @@ function update() {
   });
 
   const final = totalWeight > 0
-    ? (totalWeighted / totalWeight).toFixed(1)
+    ? (weightedSum / totalWeight).toFixed(1)
     : 0;
 
   document.getElementById("final")
@@ -191,17 +192,10 @@ function update() {
       }]
     },
     options: {
-      cutout: "55%",
+      cutout: "60%",
       plugins: {
         legend: {
           position: "bottom"
-        },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              return ctx.label + ": " + ctx.raw.toFixed(1) + "%";
-            }
-          }
         }
       }
     }
