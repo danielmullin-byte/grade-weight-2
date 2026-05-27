@@ -69,7 +69,7 @@
   <h1>Grade Weight Visualizer</h1>
 
   <div class="note">
-    Each slice is fixed (weight). Colored part = earned. Gray = missing.
+    Each slice = category weight. Colored = earned. Gray = missing (uncompleted work).
   </div>
 
   <div class="row">
@@ -97,8 +97,8 @@ let chart;
 let id = 0;
 
 const colors = [
-  "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#f44336",
-  "#009688", "#3f51b5", "#795548", "#e91e63", "#607d8b"
+  "#4caf50","#2196f3","#ff9800","#9c27b0","#f44336",
+  "#009688","#3f51b5","#795548","#e91e63","#607d8b"
 ];
 
 function addRow(name="", grade="", weight="") {
@@ -137,8 +137,8 @@ function update() {
   let data = [];
   let bg = [];
 
-  let weightedSum = 0;
-  let totalWeight = 0;
+  let earnedTotal = 0;
+  let weightTotal = 0;
 
   let i = 0;
 
@@ -153,30 +153,28 @@ function update() {
       const earned = weight * (grade / 100);
       const missing = weight - earned;
 
-      // FIXED PIE STRUCTURE:
-      // slice is ALWAYS full weight, never redistributed
-
-      labels.push(name + " (Earned)");
+      // FIXED STRUCTURE (NO REDISTRIBUTION EVER)
+      labels.push(name + " Earned");
       data.push(earned);
       bg.push(colors[i % colors.length]);
 
-      labels.push(name + " (Missing)");
+      labels.push(name + " Missing");
       data.push(missing);
       bg.push("#e0e0e0");
 
-      weightedSum += earned;
-      totalWeight += weight;
+      earnedTotal += earned;
+      weightTotal += weight;
 
       i++;
     }
   });
 
-  const final = totalWeight > 0
-    ? (weightedSum / totalWeight).toFixed(1)
+  const final = weightTotal > 0
+    ? (earnedTotal / weightTotal * 100).toFixed(1)
     : 0;
 
-  document.getElementById("final")
-    .innerHTML = `Final Grade: <b>${final}%</b>`;
+  document.getElementById("final").innerHTML =
+    `Final Grade: <b>${final}%</b>`;
 
   if (chart) chart.destroy();
 
