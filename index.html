@@ -10,12 +10,11 @@
     body {
       font-family: Arial;
       background: #f2f4f8;
-      margin: 0;
       padding: 20px;
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 900px;
       margin: auto;
       background: white;
       padding: 20px;
@@ -39,8 +38,9 @@
     }
 
     button {
-      padding: 8px;
+      padding: 10px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     #chartBox {
@@ -51,7 +51,7 @@
     #final {
       text-align: center;
       font-size: 26px;
-      margin-top: 20px;
+      margin-top: 15px;
     }
 
     .note {
@@ -69,7 +69,7 @@
   <h1>Grade Weight Visualizer</h1>
 
   <div class="note">
-    Each slice = category weight. Colored = earned. Gray = missing (uncompleted work).
+    Each slice = category weight. Colored = earned. Gray = missing (not completed).
   </div>
 
   <div class="row">
@@ -82,6 +82,7 @@
   <div id="rows"></div>
 
   <button onclick="addRow()">Add Category</button>
+  <button onclick="calculate()">Calculate</button>
 
   <div id="final">Final Grade: 0%</div>
 
@@ -116,20 +117,14 @@ function addRow(name="", grade="", weight="") {
     <button onclick="removeRow('r${id}')">X</button>
   `;
 
-  row.querySelectorAll("input")
-    .forEach(i => i.addEventListener("input", update));
-
   document.getElementById("rows").appendChild(row);
-
-  update();
 }
 
 function removeRow(id) {
   document.getElementById(id).remove();
-  update();
 }
 
-function update() {
+function calculate() {
 
   const rows = document.querySelectorAll(".row");
 
@@ -153,7 +148,7 @@ function update() {
       const earned = weight * (grade / 100);
       const missing = weight - earned;
 
-      // FIXED STRUCTURE (NO REDISTRIBUTION EVER)
+      // FIXED STRUCTURE: never redistribute
       labels.push(name + " Earned");
       data.push(earned);
       bg.push(colors[i % colors.length]);
@@ -178,7 +173,9 @@ function update() {
 
   if (chart) chart.destroy();
 
-  chart = new Chart(document.getElementById("chart"), {
+  const ctx = document.getElementById("chart");
+
+  chart = new Chart(ctx, {
     type: "doughnut",
     data: {
       labels: labels,
@@ -191,6 +188,7 @@ function update() {
     },
     options: {
       cutout: "60%",
+      responsive: true,
       plugins: {
         legend: {
           position: "bottom"
