@@ -1,28 +1,218 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Grade Visualizer</title>
+  <meta charset="UTF-8">
+  <title>Grade Weight Visualizer</title>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f2f4f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 60px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    #chartBox {
+      width: 450px;
+      margin: 30px auto;
+    }
+
+    #final {
+      text-align: center;
+      font-size: 26px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 
 <body>
 
-<canvas id="pieChart"></canvas>
+<div class="container">
+
+  <h1>Grade Weight Visualizer</h1>
+
+  <div class="row">
+    <strong>Category</strong>
+    <strong>Grade %</strong>
+    <strong>Weight %</strong>
+    <strong></strong>
+  </div>
+
+  <div id="rows"></div>
+
+  <button onclick="addRow()">Add Category</button>
+
+  <div id="final">Final Grade: 0%</div>
+
+  <div id="chartBox">
+    <canvas id="chart"></canvas>
+  </div>
+
+</div>
 
 <script>
+
 let chart;
+let id = 0;
 
-const ctx = document.getElementById('pieChart');
+const colors = [
+  "#4caf50",
+  "#2196f3",
+  "#ff9800",
+  "#9c27b0",
+  "#f44336",
+  "#009688",
+  "#3f51b5",
+  "#795548",
+  "#e91e63",
+  "#607d8b"
+];
 
-chart = new Chart(ctx, {
-  type: 'pie',
-  data: {
-    labels: ['Homework', 'Tests', 'Quizzes'],
-    datasets: [{
-      data: [20, 50, 30]
-    }]
-  }
-});
+function addRow(name="", grade="", weight="") {
+
+  id++;
+
+  const row = document.createElement("div");
+  row.className = "row";
+  row.id = "r" + id;
+
+  row.innerHTML = `
+    <input placeholder="Homework" class="name" value="${name}">
+    <input type="number" placeholder="90" class="grade" value="${grade}">
+    <input type="number" placeholder="20" class="weight" value="${weight}">
+    <button onclick="removeRow('r${id}')">X</button>
+  `;
+
+  row.querySelectorAll("input")
+    .forEach(i => i.addEventListener("input", update));
+
+  document.getElementById("rows").appendChild(row);
+
+  update();
+}
+
+function removeRow(id) {
+  document.getElementById(id).remove();
+  update();
+}
+
+function update() {
+
+  const rows = document.querySelectorAll(".row");
+
+  let labels = [];
+  let data = [];
+  let bg = [];
+
+  let totalWeighted = 0;
+  let totalWeight = 0;
+
+  let i = 0;
+
+  rows.forEach(r => {
+
+    const name = r.querySelector(".name").value || "Category";
+    const grade = Number(r.querySelector(".grade").value);
+    const weight = Number(r.querySelector(".weight").value);
+
+    if (weight > 0) {
+
+      const earned = weight * (grade / 100);
+      const missing = weight - earned;
+
+      // earned part
+      labels.push(name + " (Earned)");
+      data.push(earned);
+      bg.push(colors[i % colors.length]);
+
+      // missing part (the “hole” effect)
+      if (missing > 0) {
+        labels.push(name + " (Missing)");
+        data.push(missing);
+        bg.push("#e0e0e0");
+      }
+
+      totalWeighted += earned;
+      totalWeight += weight;
+
+      i++;
+    }
+  });
+
+  const final = totalWeight > 0
+    ? (totalWeighted / totalWeight).toFixed(1)
+    : 0;
+
+  document.getElementById("final")
+    .innerHTML = `Final Grade: <b>${final}%</b>`;
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(document.getElementById("chart"), {
+    type: "doughnut",
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: bg,
+        borderWidth: 2,
+        borderColor: "#fff"
+      }]
+    },
+    options: {
+      cutout: "55%",
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return ctx.label + ": " + ctx.raw.toFixed(1) + "%";
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// starter rows
+addRow("Homework", 90, 20);
+addRow("Quizzes", 80, 30);
+addRow("Tests", 70, 50);
+
 </script>
 
 </body>
