@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+    msg.innerHTML =
+      `Weights total ${totalWeight}% (Too High!)`;
+
+    msg.style.color = 'red';
+  }
+
+  else {
+
+    msg.innerHTML =
+      `Weights total 100%`;
+
+    msg.style.color = 'green';
+  }
+
+  if (chart) {
+    chart.destroy();
+  }
+
+  chart = new Chart(
+
+    document.getElementById('pieChart'),
+
+    {
+      type: 'pie',
+
+      data: {
+
+        labels: chartLabels,
+
+        datasets: [{
+
+          data: chartData,
+
+          backgroundColor: chartColors,
+
+          borderColor: '#ffffff',
+          borderWidth: 2
+
+        }]
+      },
+
+      options: {
+
+        responsive: true,
+
+        plugins: {
+
+          legend: {
+            position: 'bottom'
+          },
+
+          tooltip: {
+            callbacks: {
+
+              label: function(context) {
+
+                return `${context.label}: ${context.raw.toFixed(1)}%`;
+              }
+            }
+          }
+        }
+      }
+    }
+  );
+}
+
+addRow('Homework', 90, 20);
+addRow('Quizzes', 80, 30);
+addRow('Tests', 70, 50);
+
+</script>
+
+</body>
+</html>
